@@ -1,4 +1,5 @@
 const express = require("express");
+const { redirect } = require("express/lib/response");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -53,7 +54,8 @@ app.post("/urls", (req, res) => {
   console.log('shortURL is: ', shortURL);
   urlDatabase[shortURL] = req.body.longURL;
   console.log('urlDatabase is: ', urlDatabase);
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${shortURL}`);
+ 
 });
 
 // display the long URL and its shortened form
