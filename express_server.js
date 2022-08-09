@@ -68,7 +68,18 @@ app.get("/urls/:id", (req, res) => {
 app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
   const longURL = urlDatabase[shortURL];
+  if (!longURL) {
+    res.send("URL doesn't exist");
+    return;
+  }
   res.redirect(longURL);
+});
+
+// delete url and redirect to /urls
+app.post("/urls/:id/delete", (req, res) => {
+  const shortURL = req.params.id;
+  delete urlDatabase[shortURL];
+  res.redirect("/urls");
 });
 
 app.listen(PORT, () => {
