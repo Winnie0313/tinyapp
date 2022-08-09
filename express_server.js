@@ -48,7 +48,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-// receive the url form submission
+// receive the url form submission，store new urls to database, and redirect to /urls/:id
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   console.log('shortURL is: ', shortURL);
@@ -64,6 +64,12 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// requests to the endpoint "/u/:id" will redirect to its longURL
+app.get("/u/:id", (req, res) => {
+  const shortURL = req.params.id;
+  const longURL = urlDatabase[shortURL];
+  res.redirect(longURL);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
