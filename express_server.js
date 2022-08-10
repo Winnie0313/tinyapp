@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const { redirect } = require("express/lib/response");
+const res = require("express/lib/response");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -109,6 +110,11 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
+// logout route
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect("/urls");
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
