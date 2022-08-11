@@ -133,8 +133,23 @@ app.post("/urls/:id", (req, res) => {
 
 // login route
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username); // set the cookie username to the input username
-  res.redirect("/urls");
+  //res.cookie("user_id", req.body.user_id); // set the cookie username to the input username
+  const testEmial = req.body.email;
+  const testPassword = req.body.password;
+  const user = getUserByEmail(testEmial);
+
+  if (user) { // check if user exist in database
+    if (user.password === testPassword) { // check if password correct
+      res.cookie("user_id", user.id);
+      res.redirect("/urls");
+    } else {
+      return res.status(403).send("Incorrect password.");
+    }
+  } else {
+    return res.status(403).send("Please enter correct email address or register for an account!");
+  }
+
+  //res.redirect("/urls");
 });
 
 // logout route
