@@ -103,8 +103,15 @@ app.post("/urls", (req, res) => {
 
 // display the long URL and its shortened form
 app.get("/urls/:id", (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  console.log('user is: ', urlDatabase[id]);
+  if (!urlDatabase[id]) {
+    res.send("Short URL does not exist!")
+    return;
+  }
   const templateVars = { 
-    id: req.params.id, 
+    id, 
     longURL: urlDatabase[req.params.id],
     user: users[req.cookies.user_id]
   };
