@@ -47,9 +47,6 @@ function generateRandomString() {
 // find a user in the users object from its email
 function getUserByEmail(email) {
   for (let userId in users) {
-    //console.log("user is: ", userId);
-    //console.log("user email is: ", userId.email);
-   // console.log("user email take 2: ", users[userId].email);
     if (email === users[userId].email) {
       return users[userId];
     }
@@ -79,7 +76,7 @@ app.get("/urls", (req, res) => {
 
 // show the URL submission form 
 app.get("/urls/new", (req, res) => {
-  // display the username
+  // display the loggin email if logged in
   const templateVars = {
     user: users[req.cookies.user_id]
   };
@@ -90,7 +87,6 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
-  //display the username
   res.redirect(`/urls/${shortURL}`);
  
 });
@@ -133,7 +129,6 @@ app.post("/urls/:id", (req, res) => {
 
 // login route
 app.post("/login", (req, res) => {
-  //res.cookie("user_id", req.body.user_id); // set the cookie username to the input username
   const testEmial = req.body.email;
   const testPassword = req.body.password;
   const user = getUserByEmail(testEmial);
@@ -182,7 +177,6 @@ app.post("/register", (req, res) => {
     email,
     password
   }
-  console.log("users object is: ", users);
   res.cookie("user_id", id);
   res.redirect("/urls")
 });
