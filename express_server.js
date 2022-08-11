@@ -143,9 +143,6 @@ app.get("/urls/:id", (req, res) => {
   }
 
   const usersURL = urlsForUser(userID);
-  console.log("usersURL: ", usersURL);
-  console.log("id: ", id)
-  
 
 
   for (let key in usersURL) {  // If the URL belongs to the user
@@ -164,15 +161,6 @@ app.get("/urls/:id", (req, res) => {
 });
 
   
-
-//   const templateVars = { 
-//     id, 
-//     longURL: urlDatabase[req.params.id].longURL,
-//     user: users[req.cookies.user_id]
-//   };
-//   res.render("urls_show", templateVars);
-// });
-
 // requests to the endpoint "/u/:id" will redirect to the webpage of its longURL
 app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
@@ -191,9 +179,27 @@ app.get("/u/:id", (req, res) => {
 
 // delete url and redirect to /urls
 app.post("/urls/:id/delete", (req, res) => {
-  const shortURL = req.params.id;
-  delete urlDatabase[shortURL];
-  res.redirect("/urls");
+  const id = req.params.id;
+  const userID = req.cookies.user_id;
+  if (!urlDatabase[id]) {
+    res.send("Short URL does not exist!");
+    return;
+  }
+
+  if (!users[userID]) { // If the user is not logged in
+    res.send("Please login or register first!");
+    return;
+  }
+  
+  const usersURL = urlsForUser(userID);
+
+  for (let key in usersURL) {  // If the URL belongs to the user
+    if (key === id) {
+      delete urlDatabase[id];
+      res.redirect("/urls");
+    }
+  } 
+  res.send("This is not your URL!");
 });
 
 // edit route: edit the long URL
@@ -279,3 +285,4 @@ app.post("/register", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
