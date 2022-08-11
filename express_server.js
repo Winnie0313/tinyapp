@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const cookieSession = require("cookie-session");
 const { redirect } = require("express/lib/response");
 const res = require("express/lib/response");
+const { getUserByEmail } = require("./helpers")
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -55,16 +56,6 @@ function generateRandomString() {
 
 }
 
-// find a user in the users object from its email
-function getUserByEmail(email) {
-  for (let userId in users) {
-    if (email === users[userId].email) {
-      return users[userId];
-    }
-  }
-  return null;
-}
-
 // returns the URLs where the userID is equal to the id of the currently logged-in user.
 function urlsForUser(userID) {
   const filteredURLs = {};
@@ -91,7 +82,6 @@ app.get("/hello", (req, res) => {
 // only show the logged in user's URLs
 app.get("/urls", (req, res) => {
   let userID = req.session.user_id;
-  console.log("userID: ", userID);
 
   const templateVars = { 
     urls: urlsForUser(userID),
@@ -227,7 +217,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const testEmial = req.body.email;
   const testPassword = req.body.password;
-  const user = getUserByEmail(testEmial);
+  const user = getUserByEmail(testEmial, users);
 
   const isCorrectPassword = bcrypt.compareSync(testPassword, user.password); // check if user's password is correct
 
@@ -271,7 +261,7 @@ app.post("/register", (req, res) => {
   if (email === "" || password === "") { // error handler: when email or password is empty
     return res.status(400).send("Invalid email address or password.");
   }
-  if (getUserByEmail(email)) { // error handler: when the input email is already exist in the users object
+  if (getUserByEmail(email, users)) { // error handler: when the input email is already exist in the users object
     return res.status(400).send("Email has been used.");
   }
   const hashedPassword = bcrypt.hashSync(password, 10); // hash the password
