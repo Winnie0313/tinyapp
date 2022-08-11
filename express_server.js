@@ -44,6 +44,18 @@ function generateRandomString() {
 
 }
 
+// find a user in the users object from its email
+function getUserByEmail(email) {
+  for (let userId in users) {
+    //console.log("user is: ", userId);
+    //console.log("user email is: ", userId.email);
+   // console.log("user email take 2: ", users[userId].email);
+    if (email === users[userId].email) {
+      return users[userId];
+    }
+  }
+  return null;
+}
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -144,11 +156,21 @@ app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
-  user: users[id] = {
+
+  if (email === "" || password === "") { // when email or password is empty
+    return res.status(400).send("Invalid email address or password.");
+  }
+
+  if (getUserByEmail(email)) { 
+    return res.status(400).send("Email has been used.");
+  }
+
+  users[id] = { // store registation info to users 
     id,
     email,
     password
   }
+  console.log("users object is: ", users);
   res.cookie("user_id", id);
   res.redirect("/urls")
 
