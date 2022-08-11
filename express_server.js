@@ -31,16 +31,11 @@ const urlDatabase = {
 
 // store user: users
 const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
+  NDkRVS: {
+    id: 'NDkRVS',
+    email: 'jjiii@gmail.cpm',
+    password: '$2a$10$HSeuYQgcz1FpFp.IRdYINOGhlZy86fLA.FsZyrJM2Si7eL4K5.Sp6'
+  }
 };
 
 
@@ -229,8 +224,10 @@ app.post("/login", (req, res) => {
   const testPassword = req.body.password;
   const user = getUserByEmail(testEmial);
 
+  const isCorrectPassword = bcrypt.compareSync(testPassword, user.password); // check if user's password is correct
+
   if (user) { // check if user exist in database
-    if (user.password === testPassword) { // check if password correct
+    if (isCorrectPassword) { // check if password correct
       res.cookie("user_id", user.id);
       res.redirect("/urls");
     } else {
@@ -239,7 +236,6 @@ app.post("/login", (req, res) => {
   } else {
     return res.status(403).send("Please enter correct email address or register for an account!");
   }
-
   //res.redirect("/urls");
 });
 
@@ -276,19 +272,16 @@ app.post("/register", (req, res) => {
   }
 
   const hashedPassword = bcrypt.hashSync(password, 10); // hash the password
-  console.log("hashedPw", hashedPassword)
 
   users[id] = { // store registation info to users 
     id,
     email,
     password: hashedPassword // store hashed password
   }
-  console.log("users", users);
 
   res.cookie("user_id", id);
   res.redirect("/urls")
 });
-
 
 
 app.listen(PORT, () => {
