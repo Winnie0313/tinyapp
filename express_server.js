@@ -127,7 +127,19 @@ app.post("/urls/:id", (req, res) => {
 
 });
 
-// login route
+// login route - display the login page
+app.get("/login", (req, res) => {
+  if (users[req.cookies.user_id]) { // If the user is logged in, redirect to GET /urls
+    res.redirect("/urls");
+    return;
+  }
+  const templateVars = {
+    user: users[req.cookies.user_id]
+  };
+  res.render("login", templateVars);
+});
+
+// handle login fomr data
 app.post("/login", (req, res) => {
   const testEmial = req.body.email;
   const testPassword = req.body.password;
@@ -155,6 +167,10 @@ app.post("/logout", (req, res) => {
 
 // register route
 app.get("/register", (req, res) => {
+  if (users[req.cookies.user_id]) { // If the user is logged in, redirect to GET /urls
+    res.redirect("/urls");
+    return;
+  }
   const templateVars = {
     user: users[req.cookies.user_id]
   };
@@ -181,13 +197,7 @@ app.post("/register", (req, res) => {
   res.redirect("/urls")
 });
 
-// login route - display the login page
-app.get("/login", (req, res) => {
-  const templateVars = {
-    user: users[req.cookies.user_id]
-  };
-  res.render("login", templateVars);
-});
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
