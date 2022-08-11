@@ -116,7 +116,7 @@ app.get("/urls/new", (req, res) => {
 // receive the url form submission，store new urls to database, and redirect to /urls/:id
 app.post("/urls", (req, res) => {
   if (!users[req.cookies.user_id]) { // If the user is not logged in
-    res.send("<html><body>Please <b>login <b>or <b>register <b>first!</b></body></html>\n");
+    res.send("Please login first!");
     return;
   }
   const shortURL = generateRandomString();
@@ -190,7 +190,7 @@ app.post("/urls/:id/delete", (req, res) => {
     res.send("Please login or register first!");
     return;
   }
-  
+
   const usersURL = urlsForUser(userID);
 
   for (let key in usersURL) {  // If the URL belongs to the user
