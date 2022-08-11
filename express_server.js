@@ -1,4 +1,5 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
 const { redirect } = require("express/lib/response");
 const res = require("express/lib/response");
@@ -262,6 +263,8 @@ app.get("/register", (req, res) => {
 
 // handles registration form data
 app.post("/register", (req, res) => {
+
+
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
@@ -271,11 +274,17 @@ app.post("/register", (req, res) => {
   if (getUserByEmail(email)) { // error handler: when the input email is already exist in the users object
     return res.status(400).send("Email has been used.");
   }
+
+  const hashedPassword = bcrypt.hashSync(password, 10); // hash the password
+  console.log("hashedPw", hashedPassword)
+
   users[id] = { // store registation info to users 
     id,
     email,
-    password
+    password: hashedPassword // store hashed password
   }
+  console.log("users", users);
+
   res.cookie("user_id", id);
   res.redirect("/urls")
 });
