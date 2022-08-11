@@ -24,6 +24,9 @@
 
   <body>
     <main style="margin: 1em;">
+      <% if (!user) { %>
+        <p>Please login or register first!</p>
+      <% } else {%>
       <h3>My URLs</h3>
       <table class="table">
         <thead>
@@ -35,10 +38,11 @@
           </tr>
         </thead>
         <tbody>
+
           <% for (let id in urls) { %>
             <tr>
               <td><%= id %></td>
-              <td><%= urls[id].longURL %></td>
+              <td><%= urls[id] %></td>
               <td><a href="/urls/<%= id %>">
                 <button type="button">Edit</button>
               </a></td>
@@ -46,7 +50,7 @@
                 <button type="submit">Delete</button>
               </form></td>
             </tr>
-          <% } %>
+          <% }} %>
         </tbody>
       </table>
     </main>

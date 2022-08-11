@@ -65,6 +65,17 @@ function getUserByEmail(email) {
   return null;
 }
 
+// returns the URLs where the userID is equal to the id of the currently logged-in user.
+function urlsForUser(userID) {
+  const filteredURLs = {};
+  for (let id in urlDatabase) {
+    if (userID === urlDatabase[id].userID) {
+      filteredURLs[id] = urlDatabase[id].longURL;
+    }
+  }
+  return filteredURLs;
+}
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -77,10 +88,13 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// only show the logged in user's URLs
 app.get("/urls", (req, res) => {
+  let userID = req.cookies.user_id;
+
   const templateVars = { 
-    urls: urlDatabase,
-    user: users[req.cookies.user_id]
+    urls: urlsForUser(userID),
+    user: users[userID]
   };
   res.render("urls_index", templateVars);
 });
@@ -92,7 +106,6 @@ app.get("/urls/new", (req, res) => {
     return;
   }
   
-
   // display the loggin email if logged in
   const templateVars = {
     user: users[req.cookies.user_id]
@@ -135,7 +148,7 @@ app.get("/urls/:id", (req, res) => {
 app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
   const longURL = urlDatabase[shortURL].longURL;
-  
+
   if (!urlDatabase[shortURL]) {
     res.send("Short URL does not exist!")
     return;
