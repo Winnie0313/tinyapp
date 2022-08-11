@@ -1,15 +1,19 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 const { redirect } = require("express/lib/response");
 const res = require("express/lib/response");
 const app = express();
 const PORT = 8080; // default port 8080
 
 // middleware
+// set up the template engine
 app.set("view engine", "ejs");
-app.use(cookieParser());
-
+// for cookie encryption 
+app.use(cookieSession({
+  name: 'session',
+  keys: ["ndjkahjfi839jkwir7406fkjd"]
+}));
 // translate the input data / request body 
 app.use(express.urlencoded({ extended: true }));
 
@@ -86,7 +90,8 @@ app.get("/hello", (req, res) => {
 
 // only show the logged in user's URLs
 app.get("/urls", (req, res) => {
-  let userID = req.cookies.user_id;
+  let userID = req.session.user_id;
+  console.log("userID: ", userID);
 
   const templateVars = { 
     urls: urlsForUser(userID),
@@ -97,28 +102,28 @@ app.get("/urls", (req, res) => {
 
 // show the new URL submission form 
 app.get("/urls/new", (req, res) => {
-  if (!users[req.cookies.user_id]) { // If the user is not logged in, redirect to GET /login
+  if (!users[req.session.user_id]) { // If the user is not logged in, redirect to GET /login
     res.redirect("/login");
     return;
   }
   
   // display the loggin email if logged in
   const templateVars = {
-    user: users[req.cookies.user_id]
+    user: users[req.session.user_id]
   };
   res.render("urls_new", templateVars);
 });
 
 // receive the url form submission，store new urls to database, and redirect to /urls/:id
 app.post("/urls", (req, res) => {
-  if (!users[req.cookies.user_id]) { // If the user is not logged in
+  if (!users[req.session.user_id]) { // If the user is not logged in
     res.send("Please login first!");
     return;
   }
   const shortURL = generateRandomString();
   urlDatabase[shortURL]= {
     longURL: req.body.longURL,
-    userID: req.cookies.user_id
+    userID: req.session.user_id
   }
   res.redirect(`/urls/${shortURL}`);
  
@@ -127,7 +132,7 @@ app.post("/urls", (req, res) => {
 // display the long URL and its shortened form
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   if (!urlDatabase[id]) {
     res.send("Short URL does not exist!");
     return;
@@ -176,7 +181,7 @@ app.get("/u/:id", (req, res) => {
 // delete url and redirect to /urls
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   if (!urlDatabase[id]) {
     res.send("Short URL does not exist!");
     return;
@@ -208,12 +213,12 @@ app.post("/urls/:id", (req, res) => {
 
 // login route - display the login page
 app.get("/login", (req, res) => {
-  if (users[req.cookies.user_id]) { // If the user is logged in, redirect to GET /urls
+  if (users[req.session.user_id]) { // If the user is logged in, redirect to GET /urls
     res.redirect("/urls");
     return;
   }
   const templateVars = {
-    user: users[req.cookies.user_id]
+    user: users[req.session.user_id]
   };
   res.render("login", templateVars);
 });
@@ -228,7 +233,9 @@ app.post("/login", (req, res) => {
 
   if (user) { // check if user exist in database
     if (isCorrectPassword) { // check if password correct
-      res.cookie("user_id", user.id);
+
+      req.session.user_id = user.id;
+
       res.redirect("/urls");
     } else {
       return res.status(403).send("Incorrect password.");
@@ -236,31 +243,28 @@ app.post("/login", (req, res) => {
   } else {
     return res.status(403).send("Please enter correct email address or register for an account!");
   }
-  //res.redirect("/urls");
 });
 
 // logout route
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/urls");
 });
 
 // register route
 app.get("/register", (req, res) => {
-  if (users[req.cookies.user_id]) { // If the user is logged in, redirect to GET /urls
+  if (users[req.session.user_id]) { // If the user is logged in, redirect to GET /urls
     res.redirect("/urls");
     return;
   }
   const templateVars = {
-    user: users[req.cookies.user_id]
+    user: users[req.session.user_id]
   };
   res.render("registration", templateVars);
 });
 
 // handles registration form data
 app.post("/register", (req, res) => {
-
-
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
@@ -270,16 +274,13 @@ app.post("/register", (req, res) => {
   if (getUserByEmail(email)) { // error handler: when the input email is already exist in the users object
     return res.status(400).send("Email has been used.");
   }
-
   const hashedPassword = bcrypt.hashSync(password, 10); // hash the password
-
   users[id] = { // store registation info to users 
     id,
     email,
     password: hashedPassword // store hashed password
   }
-
-  res.cookie("user_id", id);
+  req.session.user_id = id;
   res.redirect("/urls")
 });
 
