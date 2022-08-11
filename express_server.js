@@ -131,18 +131,47 @@ app.post("/urls", (req, res) => {
 // display the long URL and its shortened form
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
+  const userID = req.cookies.user_id;
   if (!urlDatabase[id]) {
-    res.send("Short URL does not exist!")
+    res.send("Short URL does not exist!");
     return;
   }
 
-  const templateVars = { 
-    id, 
-    longURL: urlDatabase[req.params.id].longURL,
-    user: users[req.cookies.user_id]
-  };
-  res.render("urls_show", templateVars);
+  if (!users[userID]) { // If the user is not logged in
+    res.send("Please login or register first!");
+    return;
+  }
+
+  const usersURL = urlsForUser(userID);
+  console.log("usersURL: ", usersURL);
+  console.log("id: ", id)
+  
+
+
+  for (let key in usersURL) {  // If the URL belongs to the user
+    if (key === id) {
+      const templateVars = { 
+        id, 
+        longURL: urlDatabase[id].longURL,
+        user: users[userID]
+      }
+      res.render("urls_show", templateVars);
+      return;
+    } 
+    
+  }
+  res.send("This is not your URL!");
 });
+
+  
+
+//   const templateVars = { 
+//     id, 
+//     longURL: urlDatabase[req.params.id].longURL,
+//     user: users[req.cookies.user_id]
+//   };
+//   res.render("urls_show", templateVars);
+// });
 
 // requests to the endpoint "/u/:id" will redirect to the webpage of its longURL
 app.get("/u/:id", (req, res) => {
