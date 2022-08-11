@@ -81,7 +81,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   // display the username
   const templateVars = {
-    user: users
+    user: users[req.cookies.user_id]
   };
   res.render("urls_new", templateVars);
 });
@@ -100,7 +100,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = { 
     id: req.params.id, 
     longURL: urlDatabase[req.params.id],
-    user: users
+    user: users[req.cookies.user_id]
   };
   res.render("urls_show", templateVars);
 });
@@ -146,7 +146,7 @@ app.post("/logout", (req, res) => {
 // register route
 app.get("/register", (req, res) => {
   const templateVars = {
-    user: users
+    user: users[req.cookies.user_id]
   };
   res.render("registration", templateVars);
 });
@@ -156,15 +156,12 @@ app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
-
-  if (email === "" || password === "") { // when email or password is empty
+  if (email === "" || password === "") { // error handler: when email or password is empty
     return res.status(400).send("Invalid email address or password.");
   }
-
-  if (getUserByEmail(email)) { 
+  if (getUserByEmail(email)) { // error handler: when the input email is already exist in the users object
     return res.status(400).send("Email has been used.");
   }
-
   users[id] = { // store registation info to users 
     id,
     email,
@@ -173,8 +170,14 @@ app.post("/register", (req, res) => {
   console.log("users object is: ", users);
   res.cookie("user_id", id);
   res.redirect("/urls")
+});
 
-
+// login route - display the login page
+app.get("/login", (req, res) => {
+  const templateVars = {
+    user: users[req.cookies.user_id]
+  };
+  res.render("login", templateVars);
 });
 
 app.listen(PORT, () => {
