@@ -74,8 +74,14 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-// show the URL submission form 
+// show the new URL submission form 
 app.get("/urls/new", (req, res) => {
+  if (!users[req.cookies.user_id]) { // If the user is not logged in, redirect to GET /login
+    res.redirect("/login");
+    return;
+  }
+  
+
   // display the loggin email if logged in
   const templateVars = {
     user: users[req.cookies.user_id]
@@ -85,6 +91,10 @@ app.get("/urls/new", (req, res) => {
 
 // receive the url form submission，store new urls to database, and redirect to /urls/:id
 app.post("/urls", (req, res) => {
+  if (!users[req.cookies.user_id]) { // If the user is not logged in
+    res.send("<html><body>Please <b>login <b>or <b>register <b>first!</b></body></html>\n");
+    return;
+  }
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
