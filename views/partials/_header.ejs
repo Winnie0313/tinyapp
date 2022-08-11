@@ -22,7 +22,10 @@
             <button type="submit" class="btn btn-primary">Logout</button>
           </form> 
         <% } else { %>
-          <form class="form-inline" action="/login" method="POST">
+          <a class="nav-item nav-link" href="/Register">Register</a>
+          <a class="nav-item nav-link" href="/login">Login</a>
+
+          <!-- <form class="form-inline" action="/login" method="POST">
             <input
               class="form-control"
               type="text"
@@ -31,7 +34,7 @@
               style="width: 250px; margin: 0.5em"
             />
             <button type="submit" class="btn btn-primary">Login</button>
-          </form>
+          </form> -->
         <% } %>
       </div>
     </div>
