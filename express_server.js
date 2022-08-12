@@ -18,10 +18,6 @@ app.use(cookieSession({
 // translate the input data / request body 
 app.use(express.urlencoded({ extended: true }));
 
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-// };
 
 const urlDatabase = {
   b6UTxQ: {
@@ -34,7 +30,7 @@ const urlDatabase = {
   },
 };
 
-// store user: users
+// store users info
 const users = {
   NDkRVS: {
     id: 'NDkRVS',
@@ -48,12 +44,10 @@ const users = {
 function generateRandomString() {
   let randomString = '';
   let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-  for ( let i = 0; i <6; i++ ) {
+  for ( let i = 0; i < 6; i++ ) {
     randomString += characters.charAt(Math.floor(Math.random()*characters.length));
  }
  return randomString;
-
 }
 
 // returns the URLs where the userID is equal to the id of the currently logged-in user.
@@ -82,7 +76,6 @@ app.get("/hello", (req, res) => {
 // only show the logged in user's URLs
 app.get("/urls", (req, res) => {
   let userID = req.session.user_id;
-
   const templateVars = { 
     urls: urlsForUser(userID),
     user: users[userID]
